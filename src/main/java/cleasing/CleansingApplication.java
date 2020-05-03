@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.gcp.pubsub.core.PubSubTemplate;
 import org.springframework.cloud.gcp.pubsub.integration.AckMode;
@@ -15,18 +16,24 @@ import org.springframework.cloud.gcp.pubsub.integration.outbound.PubSubMessageHa
 import org.springframework.cloud.gcp.pubsub.support.BasicAcknowledgeablePubsubMessage;
 import org.springframework.cloud.gcp.pubsub.support.GcpPubSubHeaders;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.annotation.MessagingGateway;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
 
+import cleasing.utils.StorageUtils;
 
 
-@SpringBootApplication
+@Configuration
+@ComponentScan
+@EnableAutoConfiguration
 public class CleansingApplication {
 	  private static final Logger LOGGER = LoggerFactory
 		      .getLogger(CleansingApplication.class);
+	  StorageUtils storageUtil = new StorageUtils();
 	public static void main(String[] args) {
 	    SpringApplication.run(CleansingApplication.class, args);
 	  }
@@ -64,6 +71,7 @@ public class CleansingApplication {
   	  LOGGER.info("Message arrived! Payload: " + new String((byte[]) message.getPayload()));
   	  BasicAcknowledgeablePubsubMessage originalMessage =
   		message.getHeaders().get(GcpPubSubHeaders.ORIGINAL_MESSAGE, BasicAcknowledgeablePubsubMessage.class);
+  	  storageUtil.fileMoveToSFTP(new String((byte[]) message.getPayload()));
   	  originalMessage.ack();
   	};
     }
