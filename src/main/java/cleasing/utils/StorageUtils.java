@@ -37,9 +37,10 @@ public class StorageUtils {
 		Blob blob = storage.get(BlobId.of(data.getBody(), data.getValue()));
 
 		Path destFilePath = Paths.get("src/main/resources/file.csv");
-
+		
 		blob.downloadTo(destFilePath);
 		try {
+			
 			encrytName();
 			sftUtils.putFile("src/main/resources/newfile.csv");
 		} catch (SftpException | JSchException | IOException e) {
